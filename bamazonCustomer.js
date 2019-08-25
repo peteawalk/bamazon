@@ -21,14 +21,14 @@ function displayAll() {
         for (var i = 0; i < res.length; i++) {
             console.log(` ID: ${res[i].item_id} \n Product: ${res[i].product_name} \n Price: $${res[i].price} ${newline}`)
         };
-        connection.end(); // REPLACE with next inquirer function!!!
+        buyEverything();
     });
 }
 
 function buyEverything() {
     inquirer
         .prompt({
-            name: "purchase",
+            name: "item",
             type: "input",
             message: "What would you like to look buy?"
         }, {
@@ -37,12 +37,21 @@ function buyEverything() {
             message: "How many would you like?"
         })
         .then(function (answer) {
-            console.log(answer.song);
-            connection.query("SELECT * FROM items WHERE ?", {
-                product_name: answer.purchase
-            }, function (err, res) {
-                console.log();
-                // Calculate cost!
-            });
+            connection.query("SELECT item_id and price FROM items WHERE item_id = ?", [answer.item],
+                function (err, res) {
+                    if (err) throw err;
+                    if (answer.quantity > res.quantity) {
+                        console.log(`\nWe do not have enough available, please choose a different quantity.`)
+                    } else {
+                        console.log(`\nOrder confirmed! Shipping information will be sent soon.`)
+                        connection.query("UPDATE items SET stock_quantity = stock_quantity - ? WHERE item_id = ? ", [answer.quantity, answer.item],
+                            function (err) {
+                                if (err) throw err;
+                                console.log(`\n Thanks for your business! \nYour total is $ ${answer.order} * ${answer.price}`);
+                            }
+                        )
+                    }
+                })
+            displayAll(); // Display count and user can purchase more...
         });
 }
