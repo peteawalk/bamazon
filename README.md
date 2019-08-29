@@ -1,5 +1,4 @@
-# bamazon  
-## Overview
+# bamazon
 An Amazonesque storefront. Utilize the command line to view inventory, make a purchase, etc. The node app will take in orders from customers and deplete stock from the store's inventory.
 
 ## Configuration/Install
