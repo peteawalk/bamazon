@@ -1,9 +1,23 @@
 # bamazon  
 ## Overview
-An Amazon-like storefront with a MySQL backend. This is a command line only application.  
+An Amazonesque storefront. Utilize the command line to view inventory, make a purchase, etc. The node app will take in orders from customers and deplete stock from the store's inventory.
+
+## Configuration/Install
+ a MySQL backend. This is a command line only application.  
 
 ## Requirements
-The app will take in orders from customers and deplete stock from the store's inventory. As a bonus task, you can program your app to track product sales across your store's departments and then provide a summary of the highest-grossing departments in the store.  
+* [mysql](https://www.npmjs.com/package/mysql)
+* [inquirer](https://www.npmjs.com/package/inquirer)
 
-## Usage
-Make sure you install and require the MySQL and Inquirer npm packages 
+## How to run:
+node bamazonCustomer
+  
+## Technologies used:
+Javascript (node.JS) with the help of mysql, inquirer and [Heroku](https://www.heroku.com/)
+
+## bamazon in action:
+![](/resources/bamazon_functionality.gif)
+
+## Created by: 
+Peter Walker  
+[Learn more about me - peterwalker.dev](https://www.peterwalker.dev/)
