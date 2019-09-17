@@ -14,44 +14,61 @@ connection.connect(function (err) {
     displayAll();
 });
 
-function displayAll() {
-    connection.query("SELECT item_id, product_name, price FROM items", function (err, res) {
+var displayAll = function() {
+    connection.query("SELECT item_id, product_name, price, stock_quantity FROM items", function (err, res) {
         if (err) throw err;
-        var newline = ("\n\n========================================\n")
+        var newline = ("\n========================================")
         for (var i = 0; i < res.length; i++) {
-            console.log(` ID: ${res[i].item_id} \n Product: ${res[i].product_name} \n Price: $${res[i].price} ${newline}`)
+            console.log(` ID: ${res[i].item_id} \n Product: ${res[i].product_name} \n Price: ${res[i].price} \n ${res[i].stock_quantity} ${newline}`)
         };
         buyEverything();
     });
 }
 
-function buyEverything() {
+var buyEverything = function() {
     inquirer
         .prompt({
             name: "item",
-            type: "input",
-            message: "What would you like to look buy?"
-        }, {
-            name: "quantity",
-            type: "input",
-            message: "How many would you like?"
+            type: "number",
+            message: "What would you like to look buy? (Enter ID or ctrl + C to quit)"
         })
         .then(function (answer) {
-            connection.query("SELECT item_id and price FROM items WHERE item_id = ?", [answer.item],
+            connection.query("SELECT * FROM items WHERE item_id = ?", [answer.item],
                 function (err, res) {
                     if (err) throw err;
-                    if (answer.quantity > res.quantity) {
-                        console.log(`\nWe do not have enough available, please choose a different quantity.`)
-                    } else {
-                        console.log(`\nOrder confirmed! Shipping information will be sent soon.`)
-                        connection.query("UPDATE items SET stock_quantity = stock_quantity - ? WHERE item_id = ? ", [answer.quantity, answer.item],
-                            function (err) {
-                                if (err) throw err;
-                                console.log(`\n Thanks for your business! \nYour total is $ ${answer.order} * ${answer.price}`);
-                            }
-                        )
-                    }
-                })
-            displayAll(); // Display count and user can purchase more...
-        });
+                        var product = res[0].product_name;
+                        var product_available = res[0].stock_quantity;
+                        var price = res[0].price;
+                        
+                        if (res[0].item_id === answer.item) {
+
+                            inquirer.prompt({
+                                name: "quantity",
+                                type: "number",
+                                message: "How many would you like?",
+                                validate: function(value){
+                                    if((value) >= 1){
+                                        return true;
+                                    } else {
+                                        return false;
+                                    }
+                                }
+                            }).then(function(answer){
+
+                                var determineQuantity = (product_available - answer.quantity);
+                                if ( determineQuantity > 0 ){
+                                    connection.query("UPDATE items SET stock_quantity = ? WHERE product_name = ?", [determineQuantity, product], function(err, res) {
+                                        if (err) throw err;
+                                        var newline = ("\n========================================")
+                                        console.log(`Your total is $${answer.quantity * price} ${newline} \n Purchase complete! Thanks! ${newline}`);
+                                        displayAll();
+                                    });
+                                } else {
+                                    console.log("Not a valid choice!");
+                                    buyEverything();
+                                }
+                            })
+                        };
+                    })
+    })
 }
